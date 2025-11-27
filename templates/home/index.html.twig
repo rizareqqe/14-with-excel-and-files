@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container">
+    <h1>Панель управления</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Заказов</h5>
+                    <p class="card-text display-4">{{ total_orders }}</p>
+                    <a href="{{ path('app_order_index') }}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Клиентов</h5>
+                    <p class="card-text display-4">{{ total_customers }}</p>
+                    <a href="{{ path('app_customer_index') }}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Блюд</h5>
+                    <p class="card-text display-4">{{ total_dishes }}</p>
+                    <a href="{{ path('app_dish_index') }}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <h3>Последние заказы</h3>
+    {% if recent_orders|length > 0 %}
+        <ul class="list-group">
+            {% for order in recent_orders %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Заказ #{{ order.id }} — {{ order.customer.name }} — {{ order.totalPrice }} руб.
+                    <a href="{{ path('app_order_show', {id: order.id}) }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">Нет заказов</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ path('app_dish_index') }}" class="btn btn-success me-2">Меню</a>
+        <a href="{{ path('app_order_new') }}" class="btn btn-info">Новый заказ</a>
+    </div>
+</div>
+{% endblock %}

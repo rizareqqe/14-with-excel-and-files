@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1 style="margin-top:0;">Заказы</h1>
+
+<div style="margin-bottom: 20px;">
+    <a href="{{ path('app_order_new') }}" 
+       style="background:#28a745; color:white; padding:8px 15px; text-decoration:none; margin-right:10px; display:inline-block;">
+        + Новый заказ
+    </a>
+
+    <a href="{{ path('app_export_orders') }}" 
+   style="background:#007bff; color:white; padding:8px 15px; text-decoration:none; display:inline-block;">
+    Скачать все заказы в Excel
+</a>
+</div>
+
+<table style="width:100%; border-collapse:collapse; margin-top:10px; border:1px solid #ddd;">
+    <tr style="background:#f5f5f5;">
+        <th style="padding:10px; border:1px solid #ddd; text-align:left;">№</th>
+        <th style="padding:10px; border:1px solid #ddd; text-align:left;">Клиент</th>
+        <th style="padding:10px; border:1px solid #ddd; text-align:left;">Телефон</th>
+        <th style="padding:10px; border:1px solid #ddd; text-align:left;">Блюда</th>
+        <th style="padding:10px; border:1px solid #ddd; text-align:left;">Сумма</th>
+        <th style="padding:10px; border:1px solid #ddd; text-align:left;"></th>
+    </tr>
+    {% for order in orders %}
+        <tr>
+            <td style="padding:10px; border:1px solid #ddd;">{{ order.id }}</td>
+            <td style="padding:10px; border:1px solid #ddd;">{{ order.customer.name }}</td>
+            <td style="padding:10px; border:1px solid #ddd;">{{ order.customer.phone }}</td>
+            <td style="padding:10px; border:1px solid #ddd;">
+                {% for dish in order.dishes %}
+                    {{ dish.name }} — {{ dish.price }} руб.<br>
+                {% endfor %}
+            </td>
+            <td style="padding:10px; border:1px solid #ddd; font-weight:bold;">{{ order.totalPrice }} руб.</td>
+            <td style="padding:10px; border:1px solid #ddd;">
+                <a href="{{ path('app_order_show', {id: order.id}) }}" style="color:#007bff;">подробнее</a>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="6" style="padding:20px; text-align:center; color:#999;">Нет заказов</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

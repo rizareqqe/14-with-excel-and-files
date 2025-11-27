@@ -1,0 +1,20 @@
+{# templates/dish/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ dish.name }}{% endblock %}
+
+{% block body %}
+    <h1>{{ dish.name }}</h1>
+    <p><strong>Цена:</strong> {{ dish.price }} руб.</p>
+
+    <div class="mb-4">
+        {% if dish.imageName %}
+            <img src="{{ vich_uploader_asset(dish, 'imageFile') | imagine_filter('thumb_small') }}" alt="{{ dish.name }}" class="img-fluid rounded">
+        {% else %}
+            <img src="{{ asset('images/placeholder-dish.png') }}" alt="Нет фото" class="img-fluid rounded">
+        {% endif %}
+    </div>
+
+    <a href="{{ path('app_dish_index') }}" class="btn btn-secondary">Назад</a>
+    <a href="{{ path('app_dish_edit', {'id': dish.id}) }}" class="btn btn-warning">Изменить</a>
+{% endblock %}

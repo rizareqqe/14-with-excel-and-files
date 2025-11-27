@@ -1,0 +1,13 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-primary">Сохранить</button>
+{{ form_end(form) }}
+
+{% if dish.imageName %}
+    <hr>
+    <p>Файл: <a href="{{ vich_uploader_asset(dish) }}" target="_blank">{{ dish.imageName }}</a></p>
+    <form method="post" action="{{ path('app_dish_delete_image', {id: dish.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete-image' ~ dish.id) }}">
+        <button class="btn btn-danger">Удалить фото</button>
+    </form>
+{% endif %}

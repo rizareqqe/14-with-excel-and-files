@@ -1,0 +1,31 @@
+{{ form_start(form) }}
+    {{ form_row(form.customer) }}
+    {{ form_row(form.dishes) }}
+
+    <h4>Документы</h4>
+    <div id="order-documents"
+         data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}"
+         data-index="{{ form.documents|length }}">
+        {% for doc in form.documents %}
+            <div class="mb-2">
+                {{ form_widget(doc) }}
+            </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn btn-sm btn-secondary" onclick="addDoc()">+ Добавить файл</button>
+
+    <hr>
+    <button class="btn btn-primary">Сохранить</button>
+{{ form_end(form) }}
+
+<script>
+function addDoc() {
+    const holder = document.getElementById('order-documents');
+    const index = parseInt(holder.dataset.index);
+    const proto = holder.dataset.prototype.replace(/__name__/g, index);
+    const div = document.createElement('div');
+    div.innerHTML = proto;
+    holder.appendChild(div);
+    holder.dataset.index = index + 1;
+}
+</script>

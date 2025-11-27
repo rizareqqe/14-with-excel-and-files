@@ -1,0 +1,28 @@
+<h1>Заказ #{{ order.id }}</h1>
+
+<p><strong>Клиент:</strong> {{ order.customer }}</p>
+
+<p><strong>Блюда:</strong>
+    {% for dish in order.dishes %}
+        {{ dish.name }}{% if not loop.last %}, {% endif %}
+    {% endfor %}
+</p>
+
+<h3>Документы ({{ order.documents|length }})</h3>
+{% if order.documents|length > 0 %}
+    {% for doc in order.documents %}
+        <div>
+            <a href="{{ vich_uploader_asset(doc) }}" target="_blank">{{ doc.fileName }}</a>
+            <form method="post" action="{{ path('app_order_delete_doc', {id: doc.id}) }}" style="display:inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ doc.id) }}">
+                <button type="submit" onclick="return confirm('Удалить?')">Удалить</button>
+            </form>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Нет документов</p>
+{% endif %}
+
+<hr>
+<a href="{{ path('app_order_edit', {id: order.id}) }}">Редактировать заказ</a> |
+<a href="{{ path('app_order_index') }}">Назад к списку</a>
