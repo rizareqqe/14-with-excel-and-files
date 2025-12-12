@@ -1,43 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Создать заказ{% endblock %}
+
+{% block body %}
 <h1>Создать заказ</h1>
 
 {{ form_start(form) }}
-    {{ form_row(form.customer) }}
     {{ form_row(form.dishes) }}
 
     <h3>Документы</h3>
-    <div id="order_documents"
-         data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}"
-         data-index="{{ form.documents|length }}">
-        {% for document in form.documents %}
-            <div class="document-field">
-                {{ form_widget(document.file) }}
-                {{ form_errors(document.file) }}
+    <div id="order_documents" data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}">
+        {% for documentField in form.documents %}
+            <div>
+                {{ form_row(documentField.file) }}
             </div>
         {% endfor %}
     </div>
 
-    <button type="button" class="add-document btn btn-sm btn-secondary">+ Добавить документ</button>
-    <br><br>
+    <button type="button" class="add_item_link" data-collection-holder-id="order_documents">Добавить документ</button>
 
-    <button class="btn btn-primary">Сохранить</button>
-    <a href="{{ path('app_order_index') }}">Назад к списку</a>
+    <button type="submit" class="btn btn-success">Сохранить</button>
 {{ form_end(form) }}
 
 <script>
-document.querySelector('.add-document').addEventListener('click', function () {
-    const collectionHolder = document.getElementById('order_documents');
-    const index = collectionHolder.dataset.index;
-    const prototype = collectionHolder.dataset.prototype.replace(/__name__/g, index);
+    const addFormToCollection = (e) => {
+        const collectionHolder = document.getElementById(e.currentTarget.dataset.collectionHolderId);
+        const item = document.createElement('div');
 
-    const newForm = document.createElement('div');
-    newForm.className = 'document-field';
-    newForm.innerHTML = prototype;
+        item.innerHTML = collectionHolder
+            .dataset.prototype
+            .replace(/__name__/g, collectionHolder.children.length);
 
-    collectionHolder.appendChild(newForm);
-    collectionHolder.dataset.index = parseInt(index) + 1;
-});
+        collectionHolder.appendChild(item);
+    };
+
+    document.querySelectorAll('.add_item_link').forEach(btn => {
+        btn.addEventListener("click", addFormToCollection);
+    });
 </script>
-
-<style>
-.document-field { margin-bottom: 10px; }
-</style>
+{% endblock %}

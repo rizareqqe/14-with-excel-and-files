@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\OrderEntity;
 use App\Entity\OrderDocument;
+use App\Entity\Customer; // Добавь
 use App\Form\OrderType;
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,17 +30,35 @@ final class OrderController extends AbstractController
         ]);
     }
 
+    #[Route('/my', name: 'app_order_my', methods: ['GET'])]
+    public function myOrders(): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        /** @var Customer $user */
+        $user = $this->getUser();
+
+        return $this->render('order/my_orders.html.twig', [
+            'orders' => $user->getOrders(),
+        ]);
+    }
+
     #[Route('/new', name: 'app_order_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $order = new OrderEntity();
+
+        if ($this->isGranted('ROLE_USER')) {
+            $order->setCustomer($this->getUser());
+        }
+
         $form = $this->createForm(OrderType::class, $order);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($order);
             $em->flush();
-            return $this->redirectToRoute('app_order_index');
+            return $this->redirectToRoute('app_order_my');
         }
 
         return $this->render('order/new.html.twig', [
@@ -56,6 +75,10 @@ final class OrderController extends AbstractController
     #[Route('/{id<\d+>}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, OrderEntity $order, EntityManagerInterface $em): Response
     {
+        if ($this->isGranted('ROLE_USER') && !$order->getCustomer()) {
+            $order->setCustomer($this->getUser());
+        }
+
         $form = $this->createForm(OrderType::class, $order);
         $form->handleRequest($request);
 
@@ -86,17 +109,17 @@ final class OrderController extends AbstractController
     public function exportOrders(Connection $connection): Response
     {
         $sql = "
-        SELECT 
-            o.id,
-            COALESCE(c.name, 'Аноним') as customer_name,
-            GROUP_CONCAT(d.name, ', ') as dishes
-        FROM orders o
-        LEFT JOIN customer c ON o.customer_id = c.id
-        LEFT JOIN order_entity_dish od ON o.id = od.order_entity_id
-        LEFT JOIN dish d ON od.dish_id = d.id
-        GROUP BY o.id
-        ORDER BY o.id DESC
-    ";
+            SELECT 
+                o.id,
+                COALESCE(c.name, 'Аноним') as customer_name,
+                GROUP_CONCAT(d.name, ', ') as dishes
+            FROM orders o
+            LEFT JOIN customer c ON o.customer_id = c.id
+            LEFT JOIN order_entity_dish od ON o.id = od.order_entity_id
+            LEFT JOIN dish d ON od.dish_id = d.id
+            GROUP BY o.id
+            ORDER BY o.id DESC
+        ";
 
         $orders = $connection->executeQuery($sql)->fetchAllAssociative();
 
@@ -108,7 +131,7 @@ final class OrderController extends AbstractController
             ->setFontBold()
             ->setFontSize(14)
             ->setFontColor(Color::WHITE)
-            ->setBackgroundColor(Color::rgb(0, 102, 204));
+            ->setBackgroundColor(Color::rgb(17, 204, 0));
 
         $writer->addRow(Row::fromValues([
             'ID заказа',
